@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.0.1 — 2026-11-25
+
 - Commands
   - `zerox generate`: renders a template set into a new target, from the values given and the defaults.
   - `zerox update`: renders a target again from its `zerox.yml`, with its values edited or from newer templates.
