@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -21,13 +22,19 @@ import (
 	"github.com/litebitus/zerox/internal/valueassignments"
 )
 
-// renderRequest is one command's request: where it runs, the ref and values it was given, and where it reports.
+// renderRequest is one command's request: where it runs, the ref and values it was given, whether it takes over files
+// zerox did not write, whether every prompt is answered yes, where it reads an answer, and where it reports.
 type renderRequest struct {
-	workingFolder string
-	ref           string
-	assignments   []string
-	output        io.Writer
-	now           func() time.Time
+	workingFolder   string
+	ref             string
+	assignments     []string
+	isForced        bool
+	isConfirmed     bool
+	input           io.Reader
+	inputIsTerminal bool
+	output          io.Writer
+	errorOutput     io.Writer
+	now             func() time.Time
 }
 
 func (request renderRequest) generate(setName string) error {
@@ -191,7 +198,12 @@ func (request renderRequest) renderInto(repository committree.Repository, templa
 		recorded = previous.Fingerprints
 	}
 	targetFolder := filepath.Join(repository.Root, filepath.FromSlash(targetPath))
-	report, err := targetfiles.Write(targetFolder, rendered, recorded)
+	if request.isForced {
+		if err := request.confirmTakeOver(targetFolder, targetPath, rendered, recorded); err != nil {
+			return err
+		}
+	}
+	report, err := targetfiles.Write(targetFolder, rendered, recorded, request.isForced)
 	if err != nil {
 		return err
 	}
@@ -210,6 +222,40 @@ func (request renderRequest) renderInto(repository committree.Repository, templa
 	}
 	fmt.Fprintln(request.output, targetfiles.Written.Line(configPath))
 	return nil
+}
+
+// confirmTakeOver warns of each file a forced update takes over and asks for the word yes, unless the take-over is
+// confirmed already; an input that is no terminal cannot answer, so the take-over then needs its confirmation stated.
+func (request renderRequest) confirmTakeOver(targetFolder, targetPath string,
+	rendered []templaterendering.RenderedFile, recorded map[string]string) error {
+	takenOver, err := targetfiles.TakenOverPaths(targetFolder, rendered, recorded)
+	if err != nil || len(takenOver) == 0 || request.isConfirmed {
+		return err
+	}
+	fmt.Fprintf(request.errorOutput, "warning: --force takes over %d %s zerox did not write, replacing their content:\n",
+		len(takenOver), plural(len(takenOver), "file", "files"))
+	for _, filePath := range takenOver {
+		fmt.Fprintln(request.errorOutput, "  "+path.Join(targetPath, filePath))
+	}
+	if !request.inputIsTerminal {
+		return errors.New("--force takes over files zerox did not write; --yes confirms it where no terminal can answer")
+	}
+	fmt.Fprint(request.errorOutput, "type 'yes' to take over: ")
+	answer, err := bufio.NewReader(request.input).ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return fmt.Errorf("failed to read the answer: %w", err)
+	}
+	if strings.TrimSpace(answer) != "yes" {
+		return errors.New("not taken over: the answer was not yes, and nothing was written")
+	}
+	return nil
+}
+
+func plural(count int, one, many string) string {
+	if count == 1 {
+		return one
+	}
+	return many
 }
 
 func sameRecord(previous, current zerox.Target) bool {

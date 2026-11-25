@@ -34,6 +34,7 @@ autoload -Uz compinit && compinit
 zerox generate mock-set --value mock_id=m1 --value limits='{size: 10}'
 zerox update mocks/m1 --value limits.size=20
 zerox update mocks/m1 --ref v2
+zerox update mocks/m1 --force
 ```
 
 | Command | Does |

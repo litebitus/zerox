@@ -23,10 +23,18 @@ func failureOfCommand(err error) error {
 	return commandFailure{cause: err}
 }
 
-// Run runs the command line's arguments from the working folder, and answers the exit code.
-func Run(version string, arguments []string, workingFolder string, output, errorOutput io.Writer,
-	now func() time.Time) int {
-	request := renderRequest{workingFolder: workingFolder, output: output, now: now}
+// Run runs the command line's arguments from the working folder, reading a confirmation from input where it is a
+// terminal, and answers the exit code.
+func Run(version string, arguments []string, workingFolder string, input io.Reader, inputIsTerminal bool,
+	output, errorOutput io.Writer, now func() time.Time) int {
+	request := renderRequest{
+		workingFolder:   workingFolder,
+		input:           input,
+		inputIsTerminal: inputIsTerminal,
+		output:          output,
+		errorOutput:     errorOutput,
+		now:             now,
+	}
 	root := commandTree(version, &request)
 	root.SetOut(output)
 	root.SetErr(errorOutput)
@@ -52,6 +60,10 @@ func commandTree(version string, request *renderRequest) *cobra.Command {
 		SilenceErrors: true,
 	}
 	root.SetVersionTemplate("{{.Version}}\n")
+	root.PersistentFlags().BoolVar(&request.isForced, "force", false,
+		"Do what a command refuses to do by default, after a warning of it and a confirmation.")
+	root.PersistentFlags().BoolVar(&request.isConfirmed, "yes", false,
+		"Answer yes to every prompt a command asks, as a workflow needs.")
 	root.CompletionOptions.SetDefaultShellCompDirective(cobra.ShellCompDirectiveNoFileComp)
 
 	generate := &cobra.Command{

@@ -17,5 +17,11 @@ func main() {
 		fmt.Fprintln(os.Stderr, "zerox: failed to read the working folder:", err)
 		os.Exit(1)
 	}
-	os.Exit(cmd.Run(version, os.Args[1:], workingFolder, os.Stdout, os.Stderr, time.Now))
+	os.Exit(cmd.Run(version, os.Args[1:], workingFolder, os.Stdin, isTerminal(os.Stdin), os.Stdout, os.Stderr, time.Now))
+}
+
+// isTerminal tells whether a file is a terminal a person types at.
+func isTerminal(file *os.File) bool {
+	info, err := file.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }

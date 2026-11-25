@@ -51,7 +51,7 @@ func TestEachFileIsWrittenOrLeftAloneAsItsFingerprintShows(testingContext *testi
 		{Path: "adopted.txt", Content: []byte("adopted\n")},
 		{Path: "new/run.sh", Content: []byte("echo new\n"), Executable: true},
 	}
-	report, err := Write(folder, rendered, recorded)
+	report, err := Write(folder, rendered, recorded, false)
 	if err != nil {
 		testingContext.Fatal(err)
 	}
@@ -104,9 +104,50 @@ func TestWritingWhatIsAlreadyThereChangesNothing(testingContext *testing.T) {
 	folder := testingContext.TempDir()
 	writeMockFile(testingContext, folder, "same.txt", "same\n")
 	recorded := map[string]string{"same.txt": fingerprintOf("same\n")}
-	report, err := Write(folder, []templaterendering.RenderedFile{{Path: "same.txt", Content: []byte("same\n")}}, recorded)
+	report, err := Write(folder, []templaterendering.RenderedFile{{Path: "same.txt", Content: []byte("same\n")}}, recorded,
+		false)
 	if err != nil || report.Changed(recorded) {
 		testingContext.Fatalf("report %+v: %v", report, err)
+	}
+}
+
+func TestAForcedWriteTakesOverEachFileZeroxDidNotWriteAndNoOther(testingContext *testing.T) {
+	folder := testingContext.TempDir()
+	writeMockFile(testingContext, folder, "foreign.txt", "not zerox's\n")
+	writeMockFile(testingContext, folder, "edited.txt", "edited by hand\n")
+	writeMockFile(testingContext, folder, "same.txt", "same\n")
+	recorded := map[string]string{"edited.txt": fingerprintOf("as zerox wrote it\n")}
+	rendered := []templaterendering.RenderedFile{
+		{Path: "foreign.txt", Content: []byte("zerox's\n")},
+		{Path: "edited.txt", Content: []byte("newer\n")},
+		{Path: "same.txt", Content: []byte("same\n")},
+	}
+	takenOver, err := TakenOverPaths(folder, rendered, recorded)
+	if err != nil || !reflect.DeepEqual(takenOver, []string{"foreign.txt"}) {
+		testingContext.Fatalf("taken over %v: %v", takenOver, err)
+	}
+	report, err := Write(folder, rendered, recorded, true)
+	if err != nil {
+		testingContext.Fatal(err)
+	}
+	var lines []string
+	for _, file := range report.Files {
+		lines = append(lines, file.Outcome.Line(file.Path))
+	}
+	expectedLines := []string{
+		"left alone edited.txt, changed since zerox wrote it",
+		"taken over foreign.txt",
+		"unchanged same.txt",
+	}
+	if !reflect.DeepEqual(lines, expectedLines) || report.Fingerprints["foreign.txt"] != fingerprintOf("zerox's\n") ||
+		!report.Changed(recorded) {
+		testingContext.Fatalf("lines %q, fingerprints %v", lines, report.Fingerprints)
+	}
+	if content, _ := os.ReadFile(filepath.Join(folder, "foreign.txt")); string(content) != "zerox's\n" {
+		testingContext.Fatalf("foreign.txt holds %q", content)
+	}
+	if _, err := TakenOverPaths(filepath.Join(folder, "same.txt"), rendered, recorded); err == nil {
+		testingContext.Fatal("a target that is a file was read as a folder")
 	}
 }
 
@@ -151,11 +192,11 @@ func TestAFileThatCannotBeReadOrWrittenFailsTheWrite(testingContext *testing.T) 
 		{Path: "folder.txt", Content: []byte("x")},
 		{Path: "blocker/inside.txt", Content: []byte("x")},
 	} {
-		if _, err := Write(folder, []templaterendering.RenderedFile{rendered}, map[string]string{}); err == nil {
+		if _, err := Write(folder, []templaterendering.RenderedFile{rendered}, map[string]string{}, false); err == nil {
 			testingContext.Fatalf("%s was written", rendered.Path)
 		}
 	}
-	if _, err := Write(folder, nil, map[string]string{"folder.txt": fingerprintOf("x")}); err == nil {
+	if _, err := Write(folder, nil, map[string]string{"folder.txt": fingerprintOf("x")}, false); err == nil {
 		testingContext.Fatal("a folder was read as a file")
 	}
 }

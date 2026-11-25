@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Commands
+  - `--force`, a flag of every command, does what a command refuses to do by default, after a warning and a confirmation: `generate` and `update` take over each file zerox did not write.
+  - `--yes`, a flag of every command, answers yes to every prompt a command asks.
+- Configuration
+  - A target's `zerox.yml` opens with a modeline naming its schema and a line saying zerox generated it, not to be edited.
 - Client packages
   - The Go client answers values that break the inputs' schema as `InputProblems`, each `InputProblem` at the path of the input it is about.
 
