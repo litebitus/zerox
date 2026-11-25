@@ -15,3 +15,5 @@
   - `yaml-dsl.yml`, the config files as a YAML DSL.
 - Client packages
   - The Go client `github.com/litebitus/zerox/client/go` reads the config files, lists the inputs with their tags and checks values.
+- Install
+  - `brew install litebitus/tap/zerox`, a Homebrew cask each release pushes to `litebitus/homebrew-tap`.

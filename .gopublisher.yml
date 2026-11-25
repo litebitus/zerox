@@ -39,6 +39,23 @@ checksum:
   name_template: checksums.txt
   algorithm: sha256
 
+homebrew_casks:
+  - name: zerox
+    repository:
+      owner: litebitus
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/litebitus/zerox"
+    description: "Renders a template set into a target folder"
+    skip_upload: auto
+    custom_block: |
+      postflight_steps do
+        on_macos do
+          run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ "{{staged_path}}" }}/zerox"]
+        end
+      end
+
 release:
   prerelease: auto
   extra_files:

@@ -161,6 +161,7 @@ The configuration format and zerox carry separate versions. The format's version
 ## Distribution
 
 - Binaries for Linux and macOS, `amd64` and `arm64`, attached to each release, built by [go-publisher](https://github.com/litebitus/go-publisher).
+- A Homebrew cask, `zerox` in `litebitus/homebrew-tap`, pushed by each release; a pre-release, such as a snapshot, leaves the tap alone.
 - The Go client is tagged `client/go/vX.Y.Z` beside each release's `vX.Y.Z`, its tagged commit holding the schemas it embeds.
 
 ## TODO

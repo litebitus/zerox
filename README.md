@@ -15,6 +15,12 @@ Renders a template set into a target folder with the values its command line giv
 
 The design, the config files and every rule are in [docs/design.md](docs/design.md).
 
+## Install
+
+```sh
+brew install litebitus/tap/zerox
+```
+
 ## Usage
 
 ```sh
@@ -60,5 +66,5 @@ The command tests run `zerox` in git repositories made for each test, from templ
 
 | Workflow | Does |
 |---|---|
-| Release | runs the tests, stamps the changelogs, tags `vX.Y.Z` and the Go client's `client/go/vX.Y.Z`, and publishes the binaries and schemas with [go-publisher](https://github.com/litebitus/go-publisher) |
+| Release | runs the tests, stamps the changelogs, tags `vX.Y.Z` and the Go client's `client/go/vX.Y.Z`, and publishes the binaries and schemas with [go-publisher](https://github.com/litebitus/go-publisher), and the cask to `litebitus/homebrew-tap` with the `HOMEBREW_TAP_TOKEN` secret |
 | Snapshot | publishes a pre-release of the current commit, `vX.Y.Z-snapshot.<time>`, and its Go client tag |
