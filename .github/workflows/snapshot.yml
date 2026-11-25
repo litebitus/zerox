@@ -1,0 +1,90 @@
+name: Snapshot
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  test:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/test.yml
+
+  pre-release:
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            client/go/go.sum
+
+      - name: Install svu
+        run: go install github.com/caarlos0/svu/v3@v3.4.1
+
+      - name: Compute the snapshot version
+        id: version
+        run: |
+          set -euo pipefail
+          version="$(svu patch)-snapshot.$(date -u +%Y%m%d%H%M%S)"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/${version}" "refs/tags/client/go/${version}")" ]; then
+            echo "tag $version or client/go/$version already exists on origin" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Snapshot: $version"
+
+      - name: Tag and push the snapshot
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          echo "Snapshot of commit ${GITHUB_SHA}." > "$RUNNER_TEMP/release-notes.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$VERSION" -m "Snapshot $VERSION"
+          go -C client/go generate ./...
+          git add --force client/go/schemas
+          git commit -m "chore(client): the Go client's schemas of ${VERSION}"
+          git tag -a "client/go/${VERSION}" -m "Snapshot client/go/${VERSION}"
+          git push --atomic origin "$VERSION" "client/go/${VERSION}"
+
+      - name: Check out the snapshot
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: git checkout --quiet "$VERSION"
+
+      - name: Build and publish the pre-release
+        uses: litebitus/go-publisher@action/v1
+        with:
+          args: release --clean --release-notes ${{ runner.temp }}/release-notes.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          {
+            echo "Published \`zerox\` \`${VERSION#v}\` and tagged the Go client \`client/go/${VERSION}\`, from commit \`${GITHUB_SHA::7}\`."
+            echo
+            echo '```sh'
+            echo "go get github.com/litebitus/zerox/client/go@${VERSION}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

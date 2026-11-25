@@ -1,0 +1,6 @@
+/bin
+/coverage.out
+/client/go/coverage.out
+/client/go/schemas
+/dist
+/.schema-assets

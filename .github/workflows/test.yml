@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - ".github/**"
+      - ".gitignore"
+      - ".gopublisher.yml"
+      - "LICENSE"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - ".github/**"
+      - ".gitignore"
+      - ".gopublisher.yml"
+      - "LICENSE"
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            client/go/go.sum
+
+      - name: Test
+        run: make test
