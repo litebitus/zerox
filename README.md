@@ -21,6 +21,13 @@ The design, the config files and every rule are in [docs/design.md](docs/design.
 brew install litebitus/tap/zerox
 ```
 
+The cask installs completion for bash, zsh and fish. For zsh, in `~/.zshrc`:
+
+```sh
+fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+autoload -Uz compinit && compinit
+```
+
 ## Usage
 
 ```sh
@@ -33,6 +40,7 @@ zerox update mocks/m1 --ref v2
 |---|---|
 | `zerox generate <set>` | renders a template set into a new target |
 | `zerox update <target>` | renders a target again from its `zerox.yml` |
+| `zerox completion <shell>` | writes the shell's completion script: `bash`, `fish`, `powershell` or `zsh` |
 
 The Go client package:
 
@@ -59,6 +67,8 @@ Go builds and tests the repo.
 |---|---|
 | `make build` | runs the tests, then builds `zerox` into `bin/` |
 | `make test` | `go vet`, a `gofmt` check, the Go tests, and a check that the tests cover at least 90% of each Go module's code |
+| `make completion` | `make build`, then installs its zsh completion into `~/.zsh/completions` (`COMPLETION_DIR` to override), for `zerox` and `./bin/zerox` |
+| `make completion-clean` | removes it, so a brew-installed zerox's completion takes over |
 
 The command tests run `zerox` in git repositories made for each test, from templates committed and released there.
 

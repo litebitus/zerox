@@ -3,4 +3,5 @@
 /client/go/coverage.out
 /client/go/schemas
 /dist
+/completions
 /.schema-assets

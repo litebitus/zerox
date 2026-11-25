@@ -3,18 +3,18 @@ module github.com/litebitus/zerox
 go 1.27.4
 
 require (
-	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/litebitus/yaml-dsl-spec/go v0.3.4
 	github.com/litebitus/zerox/client/go v0.0.0
+	github.com/spf13/cobra v1.10.2
+	github.com/spf13/pflag v1.1.0
 	go.yaml.in/yaml/v4 v4.0.0
 )
 
 require (
-	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
-	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
 

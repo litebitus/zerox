@@ -10,6 +10,10 @@ before:
   hooks:
     - go -C client/go generate ./...
     - go run ./internal/schemaassets .schema-assets
+    - mkdir -p completions
+    - sh -c 'go run . completion bash > completions/zerox.bash'
+    - sh -c 'go run . completion zsh > completions/zerox.zsh'
+    - sh -c 'go run . completion fish > completions/zerox.fish'
 
 builds:
   - id: zerox
@@ -34,6 +38,7 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - LICENSE
+      - completions/*
 
 checksum:
   name_template: checksums.txt
@@ -55,6 +60,10 @@ homebrew_casks:
           run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ "{{staged_path}}" }}/zerox"]
         end
       end
+    completions:
+      bash: completions/zerox.bash
+      zsh: completions/zerox.zsh
+      fish: completions/zerox.fish
 
 release:
   prerelease: auto

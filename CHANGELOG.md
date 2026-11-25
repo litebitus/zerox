@@ -5,6 +5,7 @@
 - Commands
   - `zerox generate`: renders a template set into a new target, from the values given and the defaults.
   - `zerox update`: renders a target again from its `zerox.yml`, with its values edited or from newer templates.
+  - `zerox completion`: writes the `bash`, `fish`, `powershell` or `zsh` completion script.
 - Templates
   - Read from git at a commit, a release or a floating major, never the working tree.
   - Go's `text/template`, with the delimiters the templates' `zerox.yml` states.
@@ -16,4 +17,4 @@
 - Client packages
   - The Go client `github.com/litebitus/zerox/client/go` reads the config files, lists the inputs with their tags and checks values.
 - Install
-  - `brew install litebitus/tap/zerox`, a Homebrew cask each release pushes to `litebitus/homebrew-tap`.
+  - `brew install litebitus/tap/zerox`, a Homebrew cask each release pushes to `litebitus/homebrew-tap`, with the completion scripts.

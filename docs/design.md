@@ -109,6 +109,7 @@ fingerprints:
 |---|---|
 | `zerox generate <set>` | renders a template set into a new target, from the `--value`s given and the defaults |
 | `zerox update <target>` | renders a target again from its `zerox.yml`, with the `--value`s given over its values |
+| `zerox completion <shell>` | writes the shell's completion script: `bash`, `fish`, `powershell` or `zsh` |
 
 | Flag | Holds |
 |---|---|
@@ -116,6 +117,8 @@ fingerprints:
 | `--ref <ref>` | the ref the templates are read at: a commit, or a release or floating major, as `v1.2.3` or `v1`, which reads the tag `zerox-templates/<ref>`; `generate` reads `HEAD` without it, `update` its lineage's ref |
 
 - `zerox --version`, or `-v`, prints zerox's version.
+- The `zsh` script is a hand-written function, handed the words after the cursor as well, that lists a flag's forms on one line.
+- The `bash`, `fish` and `powershell` scripts are cobra's generated scripts.
 - zerox runs in a git repository's working tree, from any folder in it, and reads and writes paths from its root.
 - A lineage records the ref as it was given; `HEAD` is recorded as its commit, abbreviated as `git rev-parse --short` abbreviates it.
 - `generate` into a target that holds a `zerox.yml` renders it again when the values match those it records, so a retried request is a no-op where it is done. Different values are refused: that is an `update`.
@@ -161,7 +164,7 @@ The configuration format and zerox carry separate versions. The format's version
 ## Distribution
 
 - Binaries for Linux and macOS, `amd64` and `arm64`, attached to each release, built by [go-publisher](https://github.com/litebitus/go-publisher).
-- A Homebrew cask, `zerox` in `litebitus/homebrew-tap`, pushed by each release; a pre-release, such as a snapshot, leaves the tap alone.
+- A Homebrew cask, `zerox` in `litebitus/homebrew-tap`, pushed by each release; a pre-release, such as a snapshot, leaves the tap alone. Each archive carries the completion scripts, written by the binary being released, and the cask installs them.
 - The Go client is tagged `client/go/vX.Y.Z` beside each release's `vX.Y.Z`, its tagged commit holding the schemas it embeds.
 
 ## TODO
