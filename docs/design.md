@@ -138,7 +138,7 @@ A client package reads zerox's config files, for a reader such as a UI that edit
 - reads a template set's `zerox.yml` and the common config, from any `fs.FS`, so a reader passes the files at the ref a lineage names;
 - reads a target's `zerox.yml`;
 - lists the inputs, each with its path, schema, default and resolved tags;
-- checks a set of values against the inputs' schema.
+- checks a set of values against the inputs' schema, each problem at the path of the input it is about, a problem no input is about at the values' top.
 
 ## DSL documents
 

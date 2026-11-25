@@ -87,7 +87,8 @@ func completedObject(schemaNode yamldslspec.Node, values map[string]any) map[str
 	return values
 }
 
-// CheckValues holds values to the inputs' schema, every problem reported at once against the values as YAML.
+// CheckValues holds values to the inputs' schema, every problem reported at once against the values as YAML;
+// values that break the schema are answered as InputProblems.
 func (set TemplateSet) CheckValues(values map[string]any) error {
 	text, err := valuesText(values)
 	if err != nil {
@@ -98,8 +99,8 @@ func (set TemplateSet) CheckValues(values map[string]any) error {
 	if readProblem != nil {
 		return fmt.Errorf("failed to read the values back: %s", readProblem.Message)
 	}
-	if problems := set.inputSchema.Validate(yamldslspec.ResolvedValueFromNode(root), yamldslspec.ValidationRules{}); len(problems) > 0 {
-		return problemReport{sourceName: sourceName, text: text}.of(problems)
+	if problems := set.inputSchema.Problems(yamldslspec.ResolvedValueFromNode(root), yamldslspec.ValidationRules{}); len(problems) > 0 {
+		return set.inputProblemsOf(problemReport{sourceName: sourceName, text: text}, problems)
 	}
 	return nil
 }

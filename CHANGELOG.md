@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Client packages
+  - The Go client answers values that break the inputs' schema as `InputProblems`, each `InputProblem` at the path of the input it is about.
+
 ## v0.0.1 — 2026-11-25
 
 - Commands

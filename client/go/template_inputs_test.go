@@ -1,7 +1,9 @@
 package zerox
 
 import (
+	"errors"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -50,6 +52,53 @@ func TestValuesAreHeldToTheInputsSchema(testingContext *testing.T) {
 	err := set.CheckValues(set.CompletedValues(map[string]any{"mock_id": "bad", "mystery": true}))
 	expectError(testingContext, err, "the values", "`mock_id` must match pattern", "mystery", "2 errors")
 	expectError(testingContext, set.CheckValues(map[string]any{"mock_id": "m1", "limits": map[string]any{"size": "x"}}), "1 error")
+}
+
+func TestEachProblemIsAtTheInputItIsAbout(testingContext *testing.T) {
+	set := readMockSet(testingContext, mockTemplates(nil))
+	err := set.CheckValues(map[string]any{
+		"limits": map[string]any{"size": "x", "names": []any{int64(1)}},
+		"stray":  true,
+	})
+	var problems InputProblems
+	if !errors.As(err, &problems) {
+		testingContext.Fatalf("not input problems: %v", err)
+	}
+	paths := map[string][]string{}
+	for _, problem := range problems.Problems {
+		paths[problem.Path] = append(paths[problem.Path], problem.Message)
+	}
+	for inputPath, expected := range map[string]string{
+		"":             "`mock_id` is required",
+		"limits.size":  "`size` must be `integer`",
+		"limits.names": "must be `string`",
+	} {
+		if !strings.Contains(strings.Join(paths[inputPath], "\n"), expected) {
+			testingContext.Fatalf("no %q at %q: %v", expected, inputPath, paths)
+		}
+	}
+	if !strings.Contains(strings.Join(paths[""], "\n"), "`stray` is not defined in the schema") {
+		testingContext.Fatalf("a key no input declares is not at the values' top: %v", paths)
+	}
+	if problems.Error() != err.Error() || !strings.Contains(problems.Error(), "--> the values") {
+		testingContext.Fatalf("report %s", problems.Error())
+	}
+}
+
+func TestASubjectIsTheDeepestInputItNamesOrIsInside(testingContext *testing.T) {
+	inputPaths := map[string]bool{"limits": true, "limits.names": true, "a/b": true}
+	for pointer, expected := range map[string]string{
+		"":                "",
+		"/limits":         "limits",
+		"/limits/names/0": "limits.names",
+		"/limits/stray":   "limits",
+		"/a~1b":           "a/b",
+		"/stray":          "",
+	} {
+		if inputPath := inputPathOf(pointer, inputPaths); inputPath != expected {
+			testingContext.Fatalf("%q is at %q, expected %q", pointer, inputPath, expected)
+		}
+	}
 }
 
 func TestValuesThatYAMLCannotWriteAreReported(testingContext *testing.T) {
