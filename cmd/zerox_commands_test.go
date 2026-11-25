@@ -252,10 +252,12 @@ func TestARefThatIsNotACommitOrVersionIsRefused(testingContext *testing.T) {
 
 func TestTheCommandLineAnswersItsVersionAndRefusesUsageItDoesNotRead(testingContext *testing.T) {
 	repository := templatesRepository(testingContext)
-	versionRun := runIn(testingContext, repository.Root, "--version")
-	expectRun(testingContext, versionRun, 0)
-	if !strings.Contains(versionRun.output+versionRun.errorOutput, "mock-version") {
-		testingContext.Fatalf("version: %q %q", versionRun.output, versionRun.errorOutput)
+	for _, flag := range []string{"--version", "-v"} {
+		versionRun := runIn(testingContext, repository.Root, flag)
+		expectRun(testingContext, versionRun, 0)
+		if !strings.Contains(versionRun.output+versionRun.errorOutput, "mock-version") {
+			testingContext.Fatalf("%s: %q %q", flag, versionRun.output, versionRun.errorOutput)
+		}
 	}
 	expectRun(testingContext, runIn(testingContext, repository.Root, "update"), 2)
 	expectRun(testingContext, runIn(testingContext, testingContext.TempDir(), "generate", "mock-set"), 1)

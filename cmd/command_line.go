@@ -17,6 +17,7 @@ func Run(version string, arguments []string, workingFolder string, output, error
 	now func() time.Time) (exitCode int) {
 	application := kingpin.New("zerox", "Renders a template set into a target folder, and renders a target again from its zerox.yml.")
 	application.Version(version)
+	application.VersionFlag.Short('v')
 	application.UsageWriter(output)
 	application.ErrorWriter(errorOutput)
 	application.Terminate(func(code int) { panic(exitRequest{code: code}) })

@@ -115,6 +115,7 @@ fingerprints:
 | `--value <path>=<value>` | a value; repeatable |
 | `--ref <ref>` | the ref the templates are read at: a commit, or a release or floating major, as `v1.2.3` or `v1`, which reads the tag `zerox-templates/<ref>`; `generate` reads `HEAD` without it, `update` its lineage's ref |
 
+- `zerox --version`, or `-v`, prints zerox's version.
 - zerox runs in a git repository's working tree, from any folder in it, and reads and writes paths from its root.
 - A lineage records the ref as it was given; `HEAD` is recorded as its commit, abbreviated as `git rev-parse --short` abbreviates it.
 - `generate` into a target that holds a `zerox.yml` renders it again when the values match those it records, so a retried request is a no-op where it is done. Different values are refused: that is an `update`.
