@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.0.2 — 2026-11-26
+
 - Commands
   - `--force`, a flag of every command, does what a command refuses to do by default, after a warning and a confirmation: `generate` and `update` take over each file zerox did not write.
   - `--yes`, a flag of every command, answers yes to every prompt a command asks.
