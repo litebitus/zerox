@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.0.3 — 2026-11-26
+
 - Templates
   - Read at any ref git resolves: a commit, a tag or a branch.
 - Configuration
