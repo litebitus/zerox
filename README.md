@@ -8,7 +8,7 @@ Renders a template set into a target folder with the values its command line giv
 - Templates are Go's `text/template`, with delimiters each repository states, so another tool's placeholders pass through as written.
 - The inputs are a JSON Schema: each input's description, type, allowed values and default, and its tags, a word list zerox resolves and a reader such as a UI interprets.
 - A common config is merged under every set's `zerox.yml`, for what no one set owns.
-- Templates are read from git at a commit, a release `zerox-templates/vX.Y.Z` or a floating major `zerox-templates/vX`, and the target records that lineage.
+- Templates are read from git at a ref, and the target records that lineage.
 - A file updated out of band is left alone from then on, as its fingerprint shows; a retried generate is a no-op.
 - Every problem in a config file or the values is reported at once, at its line and column.
 - A Go client package reads the config files, lists the inputs with their tags and checks values.

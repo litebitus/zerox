@@ -160,8 +160,8 @@ func TestValuesThatBreakTheInputsSchemaAreReportedTogetherAndWriteNothing(testin
 
 func TestUpdateAppliesValuesLeavesFilesChangedOutOfBandAloneAndReadsANewerRelease(testingContext *testing.T) {
 	repository := templatesRepository(testingContext)
-	repository.Git("tag", "--annotate", "zerox-templates/v1.0.0", "--message", "mock release")
-	runIn(testingContext, repository.Root, "generate", "mock-set", "--value", "mock_id=m1", "--ref", "v1.0.0")
+	repository.Git("tag", "--annotate", "mock-templates/v1.0.0", "--message", "mock release")
+	runIn(testingContext, repository.Root, "generate", "mock-set", "--value", "mock_id=m1", "--ref", "mock-templates/v1.0.0")
 	repository.WriteFile("mocks/m1/mock.yml", "edited\n")
 	expectRun(testingContext, runIn(testingContext, filepath.Join(repository.Root, "mocks"), "update", "m1", "--value", "limits.size=3"), 0,
 		"left alone mocks/m1/mock.yml, changed since zerox wrote it",
@@ -171,9 +171,9 @@ func TestUpdateAppliesValuesLeavesFilesChangedOutOfBandAloneAndReadsANewerReleas
 	repository.Git("rm", "--quiet", "zerox/mock-set/sub/gone.txt")
 	repository.WriteFile("zerox/mock-set/added.txt", "added [[ .limits.size ]]\n")
 	repository.CommitAll("newer templates")
-	repository.Git("tag", "--annotate", "zerox-templates/v1.1.0", "--message", "mock release")
-	repository.Git("tag", "--annotate", "zerox-templates/v1", "--message", "mock floating major")
-	expectRun(testingContext, runIn(testingContext, repository.Root, "update", "mocks/m1", "--ref", "v1"), 0,
+	repository.Git("tag", "--annotate", "mock-templates/v1.1.0", "--message", "mock release")
+	repository.Git("tag", "--annotate", "mock-templates/v1", "--message", "mock floating major")
+	expectRun(testingContext, runIn(testingContext, repository.Root, "update", "mocks/m1", "--ref", "mock-templates/v1"), 0,
 		"written mocks/m1/added.txt",
 		"left alone mocks/m1/mock.yml, changed since zerox wrote it",
 		"removed mocks/m1/sub/gone.txt, its template is gone",
@@ -181,7 +181,7 @@ func TestUpdateAppliesValuesLeavesFilesChangedOutOfBandAloneAndReadsANewerReleas
 	if actual := repository.ReadFile("mocks/m1/added.txt"); actual != "added 3\n" {
 		testingContext.Fatalf("added.txt: %s", actual)
 	}
-	if config := repository.ReadFile("mocks/m1/zerox.yml"); !strings.Contains(config, "template: mock-set@v1\n") {
+	if config := repository.ReadFile("mocks/m1/zerox.yml"); !strings.Contains(config, "template: mock-set@mock-templates/v1\n") {
 		testingContext.Fatalf("zerox.yml:\n%s", config)
 	}
 	expectRun(testingContext, runIn(testingContext, repository.Root, "update", "mocks/m1"), 0,
@@ -265,7 +265,7 @@ func TestWhatACommandCannotApplyIsRefusedAndWritesNothing(testingContext *testin
 		{repository.Root, []string{"update", "mocks/m1", "--value", "limits.size=x"}, "`size` must be `integer`"},
 		{repository.Root, []string{"update", "mocks/m1", "--value", "limits=1", "--value", "limits.size=2"},
 			"`limits` holds a value that is not a map, so `limits.size` cannot be set"},
-		{repository.Root, []string{"update", "mocks/m1", "--ref", "v9"}, "the repository has no tag `zerox-templates/v9`"},
+		{repository.Root, []string{"update", "mocks/m1", "--ref", "mock-templates/v9"}, "`mock-templates/v9` names no commit in the repository"},
 		{repository.Root, []string{"update", "absent"}, "`absent` is not a folder"},
 		{testingContext.TempDir(), []string{"update", "."}, "is not in a git repository's working tree"},
 	} {
@@ -278,7 +278,7 @@ func TestWhatACommandCannotApplyIsRefusedAndWritesNothing(testingContext *testin
 	if repository.ReadFile("mocks/m1/zerox.yml") != before {
 		testingContext.Fatal("a refused command rewrote zerox.yml")
 	}
-	repository.WriteFile("mocks/m1/zerox.yml", "version: \"1\"\ntemplate: mock-set@main\n")
+	repository.WriteFile("mocks/m1/zerox.yml", "version: \"1\"\ntemplate: mock-set\n")
 	for _, arguments := range [][]string{
 		{"update", "mocks/m1"},
 		{"generate", "mock-set", "--value", "mock_id=m1"},
@@ -291,14 +291,14 @@ func TestWhatACommandCannotApplyIsRefusedAndWritesNothing(testingContext *testin
 	}
 }
 
-func TestARefThatIsNotACommitOrVersionIsRefused(testingContext *testing.T) {
+func TestARefGitDoesNotResolveIsRefused(testingContext *testing.T) {
 	repository := templatesRepository(testingContext)
 	for arguments, expected := range map[string]string{
-		"main":   "`--ref main` is not a ref zerox reads: a commit, `vX.Y.Z` or `vX`",
-		"v9":     "the repository has no tag `zerox-templates/v9`",
+		"-v1":    "`--ref -v1` is not a ref zerox reads",
+		"v9":     "`v9` names no commit in the repository",
 		"abcdef": "`abcdef` names no commit in the repository",
 	} {
-		refused := runIn(testingContext, repository.Root, "generate", "mock-set", "--value", "mock_id=m1", "--ref", arguments)
+		refused := runIn(testingContext, repository.Root, "generate", "mock-set", "--value", "mock_id=m1", "--ref="+arguments)
 		expectRun(testingContext, refused, 1)
 		if !strings.Contains(refused.errorOutput, expected) {
 			testingContext.Fatalf("--ref %s errors:\n%s", arguments, refused.errorOutput)

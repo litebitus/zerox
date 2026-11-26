@@ -13,14 +13,14 @@ zerox knows nothing of what its templates hold. A template holds as little logic
 | input | a value the templates read, declared in the inputs' schema |
 | tag | a word an input is annotated with; zerox resolves an input's tags, and what a tag means is its reader's to interpret |
 | target | the folder a template set is rendered into |
-| lineage | the template set and the commit, release or floating major its templates were read at, as `mock-set@v1` |
+| lineage | the template set and the ref its templates were read at, as `mock-set@4e436dc` |
 | fingerprint | the SHA-256 of a file's content as zerox last wrote it |
 
 ## Template sets
 
 - A template set is `zerox/<set>/`, its name a folder name. Its `zerox.yml` is at the top and is not rendered; every other file under it is a template, rendered to the same relative path under the target.
 - The templates and both config files are read from git at a ref, never from the working tree, so a lineage names exactly what was read.
-- A template set is released by tagging its repository `zerox-templates/vX.Y.Z`, and the floating major `zerox-templates/vX` moves to the newest release of its major, as a GitHub Action's tags do. The tags version every set in the repository together.
+- A ref is any ref git resolves to a commit: a commit, a tag or a branch. How a repository tags its template releases is the repository's.
 
 ## Configuration
 
@@ -116,7 +116,7 @@ fingerprints:
 | Flag | Holds |
 |---|---|
 | `--value <path>=<value>` | a value; repeatable |
-| `--ref <ref>` | the ref the templates are read at: a commit, or a release or floating major, as `v1.2.3` or `v1`, which reads the tag `zerox-templates/<ref>`; `generate` reads `HEAD` without it, `update` its lineage's ref |
+| `--ref <ref>` | the ref the templates are read at, starting with no `-`; `generate` reads `HEAD` without it, `update` its lineage's ref |
 | `--force` | does what a command refuses to do by default, after a warning naming what it does and a confirmation; every command takes it, with this meaning wherever it applies |
 | `--yes` | answers yes to every prompt a command asks, as a workflow needs; every command takes it, with this meaning wherever it applies |
 

@@ -98,9 +98,9 @@
       "properties": {
         "version": true,
         "template": {
-          "description": "The lineage: the template set and the commit, release or floating major its templates were read at, as `mock-set@v1`.",
+          "description": "The lineage: the template set and the ref its templates were read at, as `mock-set@4e436dc`.",
           "type": "string",
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*@([0-9a-f]{4,40}|v[0-9]+(\\.[0-9]+\\.[0-9]+)?)$"
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*@[^\\s-]\\S*$"
         },
         "generated_at": {
           "description": "When the target last changed, RFC 3339 in UTC.",

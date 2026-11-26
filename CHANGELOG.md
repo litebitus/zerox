@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Templates
+  - Read at any ref git resolves: a commit, a tag or a branch.
+
 ## v0.0.2 — 2026-11-26
 
 - Commands

@@ -367,8 +367,8 @@ func TestCompletionRequestArgumentsOtherwiseStandAsTheyAre(testingContext *testi
 
 func TestACommandsFlagsAreCompletedWithTheirDescriptions(testingContext *testing.T) {
 	for command, refDescription := range map[string]string{
-		"generate": "The ref the templates are read at: a commit, vX.Y.Z or vX; HEAD without it.",
-		"update":   "The ref the templates are read at: a commit, vX.Y.Z or vX; the lineage's ref without it.",
+		"generate": "The ref the templates are read at; HEAD without it.",
+		"update":   "The ref the templates are read at; the lineage's ref without it.",
 	} {
 		run := runIn(testingContext, testingContext.TempDir(), cobra.ShellCompRequestCmd, command, "-")
 		for _, expectedLine := range []string{

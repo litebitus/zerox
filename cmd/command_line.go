@@ -77,7 +77,7 @@ func commandTree(version string, request *renderRequest) *cobra.Command {
 	generate.Flags().StringArrayVar(&request.assignments, "value", nil,
 		"A value, <path>=<value>, the value read as YAML; repeatable.")
 	generate.Flags().StringVar(&request.ref, "ref", "",
-		"The ref the templates are read at: a commit, vX.Y.Z or vX; HEAD without it.")
+		"The ref the templates are read at; HEAD without it.")
 
 	update := &cobra.Command{
 		Use:               "update <target>",
@@ -91,7 +91,7 @@ func commandTree(version string, request *renderRequest) *cobra.Command {
 	update.Flags().StringArrayVar(&request.assignments, "value", nil,
 		"A value, <path>=<value>, the value read as YAML; repeatable.")
 	update.Flags().StringVar(&request.ref, "ref", "",
-		"The ref the templates are read at: a commit, vX.Y.Z or vX; the lineage's ref without it.")
+		"The ref the templates are read at; the lineage's ref without it.")
 
 	root.AddCommand(generate, update)
 	ownCompletionScripts(root)

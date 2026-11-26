@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"io/fs"
 	"regexp"
+	"strings"
 	"time"
 )
 
-// RefPattern is a ref templates are read at: an abbreviated or full commit, a release as `v1.2.3`, or a floating major as `v1`.
-var RefPattern = regexp.MustCompile(`^([0-9a-f]{4,40}|v[0-9]+(\.[0-9]+\.[0-9]+)?)$`)
+// RefPattern is a ref templates are read at, starting with no `-`.
+var RefPattern = regexp.MustCompile(`^[^\s-]\S*$`)
 
 // Lineage is a template set and the ref its templates were read at, written `<set>@<ref>`.
 type Lineage struct {
@@ -18,17 +19,12 @@ type Lineage struct {
 
 // ParseLineage reads a lineage written `<set>@<ref>`.
 func ParseLineage(text string) (Lineage, error) {
-	for index := len(text) - 1; index >= 0; index-- {
-		if text[index] != '@' {
-			continue
-		}
-		lineage := Lineage{Set: text[:index], Ref: text[index+1:]}
-		if SetNamePattern.MatchString(lineage.Set) && RefPattern.MatchString(lineage.Ref) {
-			return lineage, nil
-		}
-		break
+	set, ref, found := strings.Cut(text, "@")
+	lineage := Lineage{Set: set, Ref: ref}
+	if found && SetNamePattern.MatchString(lineage.Set) && RefPattern.MatchString(lineage.Ref) {
+		return lineage, nil
 	}
-	return Lineage{}, fmt.Errorf("`%s` is not a lineage, `<set>@<ref>`, its ref a commit, `vX.Y.Z` or `vX`", text)
+	return Lineage{}, fmt.Errorf("`%s` is not a lineage, `<set>@<ref>`", text)
 }
 
 func (lineage Lineage) String() string { return lineage.Set + "@" + lineage.Ref }

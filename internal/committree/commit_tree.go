@@ -10,7 +10,6 @@ import (
 	"io"
 	"io/fs"
 	"os/exec"
-	"regexp"
 	"strings"
 	"testing/fstest"
 	"time"
@@ -19,13 +18,9 @@ import (
 )
 
 const (
-	// ReleaseTagPrefix is the text a template release's tag starts with, as `zerox-templates/v1.2.3`.
-	ReleaseTagPrefix  = "zerox-templates/"
 	gitCommandTimeout = time.Minute
 	archiveSizeLimit  = 64 << 20
 )
-
-var versionRefPattern = regexp.MustCompile(`^v[0-9]+(\.[0-9]+\.[0-9]+)?$`)
 
 // Repository is a git repository's working tree, at its root.
 type Repository struct {
@@ -41,18 +36,10 @@ func Open(folder string) (Repository, error) {
 	return Repository{Root: strings.TrimSpace(string(root))}, nil
 }
 
-// Commit is the full commit a ref names: a commit as given, or a release or floating major as its tag names it.
+// Commit is the full commit a ref names, as git resolves it.
 func (repository Repository) Commit(ref string) (string, error) {
-	named := ref
-	isVersionRef := versionRefPattern.MatchString(ref)
-	if isVersionRef {
-		named = "refs/tags/" + ReleaseTagPrefix + ref
-	}
-	commit, err := gitOutput(repository.Root, "rev-parse", "--verify", "--quiet", named+"^{commit}")
+	commit, err := gitOutput(repository.Root, "rev-parse", "--verify", "--quiet", ref+"^{commit}")
 	if err != nil {
-		if isVersionRef {
-			return "", fmt.Errorf("the repository has no tag `%s%s`", ReleaseTagPrefix, ref)
-		}
 		return "", fmt.Errorf("`%s` names no commit in the repository", ref)
 	}
 	return strings.TrimSpace(string(commit)), nil

@@ -42,12 +42,12 @@ func TestTheTemplatesAreReadAsTheCommitHoldsThem(testingContext *testing.T) {
 	}
 }
 
-func TestARefNamesACommitAndAVersionReadsItsReleaseTag(testingContext *testing.T) {
+func TestARefNamesTheCommitGitResolvesItTo(testingContext *testing.T) {
 	testRepository := repositorytest.New(testingContext)
 	testRepository.WriteFile("zerox/mock-set/zerox.yml", "mock\n")
 	commit := testRepository.CommitAll("templates")
-	testRepository.Git("tag", "--annotate", "zerox-templates/v1.2.3", "--message", "mock release")
-	testRepository.Git("tag", "zerox-templates/v1")
+	testRepository.Git("tag", "--annotate", "mock-templates/v1.2.3", "--message", "mock release")
+	testRepository.Git("tag", "mock-templates/v1")
 	repository, err := Open(testRepository.Root)
 	if err != nil {
 		testingContext.Fatal(err)
@@ -56,13 +56,13 @@ func TestARefNamesACommitAndAVersionReadsItsReleaseTag(testingContext *testing.T
 	if err != nil || !strings.HasPrefix(commit, shortCommit) {
 		testingContext.Fatalf("short commit %q: %v", shortCommit, err)
 	}
-	for _, ref := range []string{"HEAD", "v1.2.3", "v1", shortCommit} {
+	for _, ref := range []string{"HEAD", "main", "mock-templates/v1.2.3", "mock-templates/v1", shortCommit} {
 		if resolved, err := repository.Commit(ref); err != nil || resolved != commit {
 			testingContext.Fatalf("%s resolved to %q: %v", ref, resolved, err)
 		}
 	}
-	if _, err := repository.Commit("v2"); err == nil || err.Error() != "the repository has no tag `zerox-templates/v2`" {
-		testingContext.Fatalf("v2: %v", err)
+	if _, err := repository.Commit("v1.2.3"); err == nil || err.Error() != "`v1.2.3` names no commit in the repository" {
+		testingContext.Fatalf("v1.2.3: %v", err)
 	}
 	if _, err := repository.Commit("abcdef0"); err == nil || err.Error() != "`abcdef0` names no commit in the repository" {
 		testingContext.Fatalf("abcdef0: %v", err)

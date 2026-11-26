@@ -9,16 +9,17 @@ import (
 
 func TestALineageReadsAsItIsWritten(testingContext *testing.T) {
 	for text, expected := range map[string]Lineage{
-		"mock-set@4e436dc": {Set: "mock-set", Ref: "4e436dc"},
-		"mock.set@v1":      {Set: "mock.set", Ref: "v1"},
-		"mock_set@v1.2.3":  {Set: "mock_set", Ref: "v1.2.3"},
+		"mock-set@4e436dc":               {Set: "mock-set", Ref: "4e436dc"},
+		"mock.set@main":                  {Set: "mock.set", Ref: "main"},
+		"mock_set@mock-templates/v1.2.3": {Set: "mock_set", Ref: "mock-templates/v1.2.3"},
+		"mock-set@main@{1}":              {Set: "mock-set", Ref: "main@{1}"},
 	} {
 		lineage, err := ParseLineage(text)
 		if err != nil || lineage != expected || lineage.String() != text {
 			testingContext.Fatalf("%s read as %+v: %v", text, lineage, err)
 		}
 	}
-	for _, text := range []string{"mock-set", "mock-set@main", "@v1", "mock-set@v1.2", "mock set@v1"} {
+	for _, text := range []string{"mock-set", "mock-set@", "@v1", "mock-set@-v1", "mock-set@v 1", "mock set@v1"} {
 		_, err := ParseLineage(text)
 		expectError(testingContext, err, "`"+text+"` is not a lineage")
 	}
@@ -67,8 +68,8 @@ func TestATargetsConfigIsHeldToItsSchemaAndStatesItsLineage(testingContext *test
 	expectError(testingContext, err, "failed to read zerox.yml")
 }
 
-func TestATargetsConfigWithALineageItsSchemaAdmitsButZeroxDoesNotIsRefused(testingContext *testing.T) {
-	text := "version: \"1\"\ntemplate: mock-set@v1.2\ngenerated_at: \"2026-11-25T08:00:00Z\"\nvalues: {}\ninput_tags: {}\nfingerprints: {}\n"
+func TestATargetsConfigWithALineageRefStartingWithADashIsRefused(testingContext *testing.T) {
+	text := "version: \"1\"\ntemplate: mock-set@-v1\ngenerated_at: \"2026-11-25T08:00:00Z\"\nvalues: {}\ninput_tags: {}\nfingerprints: {}\n"
 	_, err := ReadTarget(fstest.MapFS{"zerox.yml": {Data: []byte(text)}}, "zerox.yml")
 	expectError(testingContext, err, "template")
 }

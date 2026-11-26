@@ -112,7 +112,7 @@ func (request renderRequest) update(targetFolder string) error {
 func (request renderRequest) resolvedRef(repository committree.Repository, lineageRef string) (string, string, error) {
 	ref := request.ref
 	if ref != "" && !zerox.RefPattern.MatchString(ref) {
-		return "", "", fmt.Errorf("`--ref %s` is not a ref zerox reads: a commit, `vX.Y.Z` or `vX`", ref)
+		return "", "", fmt.Errorf("`--ref %s` is not a ref zerox reads", ref)
 	}
 	if ref == "" {
 		ref = lineageRef
