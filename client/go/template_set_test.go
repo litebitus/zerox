@@ -113,6 +113,8 @@ func TestAConfigFileIsHeldToItsVersionsSchema(testingContext *testing.T) {
 		"version: \"1\"\ndelimiters: {left: \"\", right: \"]]\"}\n":                        "left",
 		"version: \"1\"\ninputs: {type: object, properties: {bad-name: {type: string}}}\n": "bad-name",
 		"version: \"1\"\ninputs: {type: string, properties: {}}\n":                         "type",
+		"version: \"1\"\ninputs: {type: object, properties: {m: {descripton: x}}}\n":       "descripton",
+		"version: \"1\"\ninputs: {type: object, properties: {m: {minLength: -1}}}\n":       "minLength",
 		"version: \"1\"\ntemplate: mock-set@v1\n":                                          "template set's `zerox.yml` states no `template`",
 		"version: \"1\"\n  bad: [indent\n":                                                 "",
 	} {
@@ -132,6 +134,44 @@ func TestABrokenCommonConfigIsReportedAtItself(testingContext *testing.T) {
 	files := mockTemplates(map[string]string{"zerox/zerox.yml": "version: \"1\"\nmystery: true\n"})
 	_, err := ReadTemplateSet(files, "mock-set")
 	expectError(testingContext, err, "zerox/zerox.yml", "mystery")
+}
+
+func TestInputsReadEveryJSONSchemaKeywordTheyHold(testingContext *testing.T) {
+	config := `version: "1"
+target: mocks/[[ .mock_id ]]
+inputs:
+  $comment: mock inputs
+  type: object
+  required: [mock_id]
+  $defs:
+    mock_name: {type: string, minLength: 1, maxLength: 20, format: hostname}
+  properties:
+    mock_id:
+      title: Mock id
+      description: The mock's id.
+      type: [string, "null"]
+      enum: [m1, m2]
+      examples: [m1]
+      deprecated: false
+      tags: [requester]
+    mock_name: {$ref: "#/$defs/mock_name"}
+    mock_list:
+      type: array
+      prefixItems: [{const: first}]
+      items: true
+      contains: {type: string}
+      minContains: 1
+      uniqueItems: true
+    mock_size:
+      type: number
+      multipleOf: 0.5
+      exclusiveMinimum: 0
+      maximum: 10
+  if: {properties: {mock_id: {const: m1}}}
+  then: {required: [mock_name]}
+  unevaluatedProperties: false
+`
+	readMockSet(testingContext, mockTemplates(map[string]string{"zerox/mock-set/zerox.yml": config}))
 }
 
 func TestInputsThatAreNotAJSONSchemaAreRefused(testingContext *testing.T) {

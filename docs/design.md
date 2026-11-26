@@ -40,6 +40,8 @@ Both config files are named `zerox.yml` and checked against zerox's JSON Schema;
 - After the merge, `delimiters`, `default_tags`, `target` and `inputs` are each stated.
 - An input is each property of `inputs`, and each property of an input that is an object, at any depth. Its name is a letter or `_` followed by letters, digits and `_`, so a template reads it as `.name`.
 - An input's `tags` is a list of words; an input without one takes `default_tags`.
+- An input's schema holds JSON Schema 2020-12's keywords and `tags`, and zerox's schema defines each of them; any other key is refused.
+- The inputs are read as draft 2020-12 whether or not they state `$schema`; one they state names that draft.
 
 ```yaml
 version: "1"

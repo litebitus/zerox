@@ -4,6 +4,9 @@
 
 - Templates
   - Read at any ref git resolves: a commit, a tag or a branch.
+- Configuration
+  - The schema defines every JSON Schema keyword an input's schema holds, and refuses any other key.
+  - The inputs are read as JSON Schema draft 2020-12, and an `$schema` they state names that draft.
 
 ## v0.0.2 — 2026-11-26
 

@@ -76,6 +76,9 @@
             "properties"
           ],
           "properties": {
+            "$schema": {
+              "const": "https://json-schema.org/draft/2020-12/schema"
+            },
             "type": {
               "const": "object"
             }
@@ -132,9 +135,219 @@
       "description": "An input's JSON Schema, with its `tags`.",
       "type": "object",
       "properties": {
-        "tags": {
-          "description": "The input's tags; an input without them takes `default_tags`.",
-          "$ref": "#/$defs/tag_list"
+        "additionalProperties": {
+          "description": "The schema of every property `properties` and `patternProperties` do not name.",
+          "$ref": "#/$defs/subschema"
+        },
+        "allOf": {
+          "description": "Schemas the instance matches every one of.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/subschema"
+          }
+        },
+        "$anchor": {
+          "description": "A plain-name fragment identifying this schema.",
+          "type": "string",
+          "pattern": "^[A-Za-z_][-A-Za-z0-9._]*$"
+        },
+        "anyOf": {
+          "description": "Schemas the instance matches at least one of.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/subschema"
+          }
+        },
+        "$comment": {
+          "description": "A comment for the schema's readers, with no effect on validation.",
+          "type": "string"
+        },
+        "const": {
+          "description": "The one value allowed."
+        },
+        "contains": {
+          "description": "A schema some array items match.",
+          "$ref": "#/$defs/subschema"
+        },
+        "contentEncoding": {
+          "description": "The encoding of a string's content, such as `base64`.",
+          "type": "string"
+        },
+        "contentMediaType": {
+          "description": "The media type of a string's content, such as `application/json`.",
+          "type": "string"
+        },
+        "contentSchema": {
+          "description": "The schema of a string's decoded content.",
+          "$ref": "#/$defs/subschema"
+        },
+        "default": {
+          "description": "The value taken when none is given."
+        },
+        "$defs": {
+          "description": "Schemas defined for reuse, keyed by name.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/subschema"
+          }
+        },
+        "dependentRequired": {
+          "description": "The properties an object also holds when it holds each property.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        },
+        "dependentSchemas": {
+          "description": "The schemas an object also matches when it holds each property.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/subschema"
+          }
+        },
+        "deprecated": {
+          "description": "Whether the value is deprecated.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "What the value is.",
+          "type": "string"
+        },
+        "$dynamicAnchor": {
+          "description": "A plain-name fragment a dynamic reference can resolve to.",
+          "type": "string",
+          "pattern": "^[A-Za-z_][-A-Za-z0-9._]*$"
+        },
+        "$dynamicRef": {
+          "description": "A reference resolved through dynamic scope, as a URI.",
+          "type": "string"
+        },
+        "else": {
+          "description": "The schema an instance failing `if` matches instead.",
+          "$ref": "#/$defs/subschema"
+        },
+        "enum": {
+          "description": "The values allowed.",
+          "type": "array",
+          "minItems": 1
+        },
+        "examples": {
+          "description": "Values that are allowed, as examples.",
+          "type": "array"
+        },
+        "exclusiveMaximum": {
+          "description": "The value every allowed value is below.",
+          "type": "number"
+        },
+        "exclusiveMinimum": {
+          "description": "The value every allowed value is above.",
+          "type": "number"
+        },
+        "format": {
+          "description": "The semantic format of a string, such as `date-time`.",
+          "type": "string"
+        },
+        "$id": {
+          "description": "The schema's URI, which its relative references resolve against.",
+          "type": "string"
+        },
+        "if": {
+          "description": "The schema whose result selects `then` or `else`.",
+          "$ref": "#/$defs/subschema"
+        },
+        "items": {
+          "description": "The schema of every array item past `prefixItems`.",
+          "$ref": "#/$defs/subschema"
+        },
+        "maxContains": {
+          "description": "The most items that match `contains`.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": {
+          "description": "The most items an array holds.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxLength": {
+          "description": "The most characters a string holds.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxProperties": {
+          "description": "The most properties an object holds.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "maximum": {
+          "description": "The largest value allowed.",
+          "type": "number"
+        },
+        "minContains": {
+          "description": "The fewest items that match `contains`.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "minItems": {
+          "description": "The fewest items an array holds.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "minLength": {
+          "description": "The fewest characters a string holds.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "minProperties": {
+          "description": "The fewest properties an object holds.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "minimum": {
+          "description": "The smallest value allowed.",
+          "type": "number"
+        },
+        "multipleOf": {
+          "description": "A number the value is a multiple of.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "not": {
+          "description": "A schema the instance does not match.",
+          "$ref": "#/$defs/subschema"
+        },
+        "oneOf": {
+          "description": "Schemas the instance matches exactly one of.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/subschema"
+          }
+        },
+        "pattern": {
+          "description": "A regular expression a string matches.",
+          "type": "string"
+        },
+        "patternProperties": {
+          "description": "The schemas of the properties whose names match each regular expression.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/subschema"
+          }
+        },
+        "prefixItems": {
+          "description": "The schemas of an array's first items, one per position.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/subschema"
+          }
         },
         "properties": {
           "description": "The inputs inside this one, keyed by name.",
@@ -146,8 +359,100 @@
           "additionalProperties": {
             "$ref": "#/$defs/input_schema"
           }
+        },
+        "propertyNames": {
+          "description": "The schema every property name matches.",
+          "$ref": "#/$defs/subschema"
+        },
+        "readOnly": {
+          "description": "Whether the value is managed by its owner and not given.",
+          "type": "boolean"
+        },
+        "$ref": {
+          "description": "A reference to a schema the instance is also validated against, as a URI.",
+          "type": "string"
+        },
+        "required": {
+          "description": "The properties an object holds.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "$schema": {
+          "description": "The dialect the schema is written in, as a URI.",
+          "type": "string"
+        },
+        "tags": {
+          "description": "The input's tags; an input without them takes `default_tags`.",
+          "$ref": "#/$defs/tag_list"
+        },
+        "then": {
+          "description": "The schema an instance matching `if` also matches.",
+          "$ref": "#/$defs/subschema"
+        },
+        "title": {
+          "description": "A short title of the value.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type the value is, or the types it may be.",
+          "anyOf": [
+            {
+              "enum": [
+                "array",
+                "boolean",
+                "integer",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "array",
+                  "boolean",
+                  "integer",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          ]
+        },
+        "unevaluatedItems": {
+          "description": "The schema of every array item no other keyword evaluated.",
+          "$ref": "#/$defs/subschema"
+        },
+        "unevaluatedProperties": {
+          "description": "The schema of every property no other keyword evaluated.",
+          "$ref": "#/$defs/subschema"
+        },
+        "uniqueItems": {
+          "description": "Whether an array's items are each different.",
+          "type": "boolean"
+        },
+        "$vocabulary": {
+          "description": "The vocabularies the dialect uses, each URI mapped to whether it is required.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "writeOnly": {
+          "description": "Whether the value is given and never read back.",
+          "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "tag_list": {
       "description": "A list of tags, each a word.",
@@ -157,6 +462,17 @@
         "type": "string",
         "minLength": 1
       }
+    },
+    "subschema": {
+      "description": "A schema inside an input's schema: a schema object or a boolean.",
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "$ref": "#/$defs/input_schema"
+        }
+      ]
     }
   }
 }

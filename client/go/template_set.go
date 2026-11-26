@@ -13,6 +13,8 @@ import (
 // SetNamePattern is a template set's name: a folder name under the templates folder.
 var SetNamePattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]*$`)
 
+const inputsSchemaDraft = "https://json-schema.org/draft/2020-12/schema"
+
 // Delimiters are the text a template action starts and ends with.
 type Delimiters struct {
 	Left  string
@@ -88,7 +90,11 @@ func templateSetOf(setName string, setFile configFile, merged yamldslspec.Node) 
 	defaultTags, _ := merged.Get("default_tags")
 	target, _ := merged.Get("target")
 	inputs, _ := merged.Get("inputs")
-	inputsJSON, err := json.Marshal(inputs.ToJSON())
+	inputsValue := inputs.ToJSON()
+	if inputsMap, isMap := inputsValue.(map[string]any); isMap {
+		inputsMap["$schema"] = inputsSchemaDraft
+	}
+	inputsJSON, err := json.Marshal(inputsValue)
 	if err != nil {
 		return TemplateSet{}, fmt.Errorf("failed to read the inputs of `%s`: %w", setName, err)
 	}
