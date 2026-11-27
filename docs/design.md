@@ -147,10 +147,6 @@ A client package reads zerox's config files, for a reader such as a UI that edit
 - lists the inputs, each with its path, schema, default and resolved tags;
 - checks a set of values against the inputs' schema, each problem at the path of the input it is about, a problem no input is about at the values' top.
 
-## DSL documents
-
-A template set written in a YAML DSL is checked as it is rendered: each file the DSL's `yaml-dsl.yml` claims is validated against the schema its DSL names, by the [YAML DSL standard](https://github.com/litebitus/yaml-dsl-spec), and a file that fails writes nothing.
-
 ## Versions
 
 The configuration format and zerox carry separate versions. The format's version is the schema's, `schemas/zerox-v<major>.<minor>.schema.json`, and zerox's version is the release.
@@ -177,5 +173,4 @@ The configuration format and zerox carry separate versions. The format's version
 
 ## TODO
 
-- DSL documents: validation follows schema resolution joining the YAML DSL standard's core.
 - `--force` may offer a diff view before the user uses it.

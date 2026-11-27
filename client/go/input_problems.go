@@ -43,12 +43,9 @@ func (set TemplateSet) inputProblemsOf(report problemReport, schemaProblems []ya
 // inputPathOf is the path of the deepest input a JSON pointer names or is inside; a pointer inside no input
 // is the values' top, the empty path.
 func inputPathOf(pointer string, inputPaths map[string]bool) string {
-	if pointer == "" {
+	names, pointerError := yamldslspec.JSONPointerSteps(pointer)
+	if pointerError != nil {
 		return ""
-	}
-	names := strings.Split(strings.TrimPrefix(pointer, "/"), "/")
-	for index, name := range names {
-		names[index] = strings.ReplaceAll(strings.ReplaceAll(name, "~1", "/"), "~0", "~")
 	}
 	for count := len(names); count > 0; count-- {
 		if candidate := strings.Join(names[:count], "."); inputPaths[candidate] {

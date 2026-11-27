@@ -3,7 +3,7 @@ module github.com/litebitus/zerox
 go 1.27.4
 
 require (
-	github.com/litebitus/yaml-dsl-spec/go v0.3.4
+	github.com/litebitus/yaml-dsl-spec/go v0.4.2-snapshot.20261127024617
 	github.com/litebitus/zerox/client/go v0.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.1.0

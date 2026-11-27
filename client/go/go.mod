@@ -3,7 +3,7 @@ module github.com/litebitus/zerox/client/go
 go 1.27.4
 
 require (
-	github.com/litebitus/yaml-dsl-spec/go v0.3.4
+	github.com/litebitus/yaml-dsl-spec/go v0.4.2-snapshot.20261127024617
 	go.yaml.in/yaml/v4 v4.0.0
 )
 

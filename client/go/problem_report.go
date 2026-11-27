@@ -24,8 +24,8 @@ func (report problemReport) of(problems []yamldslspec.Diagnostic) error {
 	source := diagnostic_renderer.DiagnosticSource{Name: report.sourceName, Text: report.text}
 	rendered := make([]string, 0, len(ordered)+1)
 	for _, problem := range ordered {
-		rendered = append(rendered, diagnostic_renderer.RenderDiagnostic(
-			problem, diagnostic_renderer.SeverityError, source, diagnostic_renderer.RenderStyle{}))
+		problem.Severity = yamldslspec.SeverityError
+		rendered = append(rendered, diagnostic_renderer.RenderDiagnostic(problem, source, diagnostic_renderer.RenderStyle{}))
 	}
 	problemCount := "1 error"
 	if len(ordered) != 1 {
