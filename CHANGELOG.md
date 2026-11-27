@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Client packages
+  - The Go client is built on yaml-dsl-spec 0.5.0.
+
 ## v0.0.3 — 2026-11-26
 
 - Templates
